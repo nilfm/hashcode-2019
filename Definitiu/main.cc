@@ -35,6 +35,14 @@ ll interest(vector<int>& v1, vector<int>& v2) {
             j++;
         }
     }
+    while (i < sz1) {
+        i++;
+        opt2++;
+    }
+    while (j < sz2) {
+        j++;
+        opt3++;
+    }
     return min(min(opt1, opt2), opt3);
 }
 
