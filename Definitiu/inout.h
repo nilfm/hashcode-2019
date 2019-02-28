@@ -38,6 +38,7 @@ void read_from_file() {
             inFile >> s;
             all_photos[i][j] = obtain_num(s);
         }
+        sort(all_photos[i].begin(), all_photos[i].end());
         if (c == 'H') horizontal_photos.push_back(make_pair(i, all_photos[i]));
         else vertical_photos.push_back(make_pair(i, all_photos[i]));
     }
