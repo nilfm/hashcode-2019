@@ -46,6 +46,8 @@ ll interest(vector<int>& v1, vector<int>& v2) {
     return min(min(opt1, opt2), opt3);
 }
 
+
+
 void calculate(ll& score, vector<pair<int, int> >& out) {
     
 }
