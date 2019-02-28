@@ -7,8 +7,8 @@
 #include <ctime>
 using namespace std;
 
-#define INPUT_FILE "a_example.in"
-#define OUTPUT_FILE "a_out.txt"
+#define INPUT_FILE "d_metropolis.in"
+#define OUTPUT_FILE "d_out.txt"
 
 typedef long long ll;
 
@@ -69,10 +69,12 @@ void read_input() {
 }
 
 bool is_bonus(const Car& c, const Ride& r) {
+    //cerr << "Temps d'arribada bonus: " << c.time + dist(c.r, c.c, r.ri, r.ci) + dist(r.ri, r.ci, r.rf, r.cf) << endl;
     return (c.time + dist(c.r, c.c, r.ri, r.ci) < r.s);
 }
 
 bool is_possible(const Car& c, const Ride& r) {
+    //cerr << "Temps d'arribada: " << c.time + dist(c.r, c.c, r.ri, r.ci) + dist(r.ri, r.ci, r.rf, r.cf) << endl;
     return (c.time + dist(c.r, c.c, r.ri, r.ci) + dist(r.ri, r.ci, r.rf, r.cf) < r.f);
 }
 
@@ -82,6 +84,7 @@ void calculate(ll& score, vector<vector<int> >& out) {
     score = 0;
     out = vector<vector<int> >(F);
     while (curr_ride < N) {
+        if (rand()%10 == 0) continue;
         int selected_car = -1;
         Ride& curr = rides[curr_ride];
         vector<int> bonus;
@@ -92,7 +95,7 @@ void calculate(ll& score, vector<vector<int> >& out) {
         }
         int bs = bonus.size();
         if (bs != 0) {
-            selected_car = rand()%bs;
+            selected_car = bonus[rand()%bs];
             score += B;
         }
         else {
@@ -101,19 +104,25 @@ void calculate(ll& score, vector<vector<int> >& out) {
                     bonus.push_back(i);
                     bs = bonus.size();
                     if (bs != 0) {
-                        selected_car = rand()%bs;
+                        selected_car = bonus[rand()%bs];
                     }
                 }
             }
         }
         if (selected_car != -1) {
+            //cerr << "LA RUTA " << curr.num << " HA ESTAT SELECCIONADA PEL COTXE " << selected_car << endl;
             Car& mycar = cars[selected_car];
             out[selected_car].push_back(curr.num);
-            mycar.r = curr.rf;
-            mycar.c = curr.cf;
             int pickup_time = max(curr.s, mycar.time + dist(mycar.r, mycar.c, curr.ri, curr.ci));
             int final_time = pickup_time + dist(curr.ri, curr.ci, curr.rf, curr.cf);
+            mycar.time = final_time;
+            mycar.r = curr.rf;
+            mycar.c = curr.cf;
             score += (ll)dist(curr.ri, curr.ci, curr.rf, curr.cf);
+            //cerr << "COTXE " << selected_car << ":" << endl;
+            //cerr << "  Fila " << mycar.r << endl;
+            //cerr << "  Columna " << mycar.c << endl;
+            //cerr << "  Temps " << mycar.time << endl;
         }
         curr_ride++;
     }
@@ -127,7 +136,8 @@ int main() {
     sort(rides.begin(), rides.end(), comp);
     string enter;
     cout << "Press enter" << endl;
-    while (getline(cin, enter)) {
+    ll iter = 0;
+    while (iter%100 != 0 or getline(cin, enter)) {
         ll score;
         vector<vector<int> > out;
         calculate(score, out);
@@ -138,6 +148,7 @@ int main() {
             cout << "Output file updated" << endl;
             high_score = score;
         }
-        cout << "Press enter" << endl;
+        iter++;
+        if (iter%100 == 0) cout << "Press enter" << endl;
     } 
 }
