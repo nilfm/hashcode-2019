@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 using namespace std;
 
@@ -36,7 +37,7 @@ void read_from_file() {
         for (int j = 0; j < k; j++) {
             string s;
             inFile >> s;
-            all_photos[i][j] = obtain_num(s);
+            all_photos[i].push_back(obtain_num(s));
         }
         sort(all_photos[i].begin(), all_photos[i].end());
         if (c == 'H') horizontal_photos.push_back(make_pair(i, all_photos[i]));
