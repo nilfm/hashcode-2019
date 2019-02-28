@@ -1,2 +1,5 @@
 *.o
 prog
+.vscode
+Definitiu/.vscode
+Practica/.vscode
