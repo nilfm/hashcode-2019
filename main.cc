@@ -3,7 +3,14 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 using namespace std;
+
+#define INPUT_FILE "a_example.in"
+#define OUTPUT_FILE "a_out.txt"
+
+typedef long long ll;
 
 int R, C, F, N, B, T;
 
@@ -13,6 +20,15 @@ int dist(int ri, int ci, int rf, int cf) {
 
 struct Ride {
     int ri, ci, rf, cf, s, f, num, real_s, real_f; 
+};
+
+struct Car {
+    int time, r, c;
+    Car() {
+        time = 0;
+        r = 0;
+        c = 0;
+    }
 };
 
 vector<Ride> rides;
@@ -28,7 +44,7 @@ bool comp(const Ride& r1, const Ride& r2)
 }
 
 void write_to_file(const vector<vector<int> >& sol) {
-    ofstream fileOut("output.txt");
+    ofstream fileOut(OUTPUT_FILE);
     int m = sol.size();
     for (int i = 0; i < m; i++) {
         int k = sol[i].size();
@@ -42,7 +58,7 @@ void write_to_file(const vector<vector<int> >& sol) {
 }
 
 void read_input() {
-    ifstream inFile("a_example.in");
+    ifstream inFile(INPUT_FILE);
     inFile >> R >> C >> F >> N >> B >> T;
     rides = vector<Ride>(N);
     for (int i = 0; i < N; i++) {
@@ -52,18 +68,67 @@ void read_input() {
     }
 }
 
-void calculate(int& score, vector<vector<int> >& out) {
+bool is_bonus(const Car& c, const Ride& r) {
+    return (c.time + dist(c.r, c.c, r.ri, r.ci) < r.s);
+}
+
+bool is_possible(const Car& c, const Ride& r) {
+    return (c.time + dist(c.r, c.c, r.ri, r.ci) + dist(r.ri, r.ci, r.rf, r.cf) < r.f);
+}
+
+void calculate(ll& score, vector<vector<int> >& out) {
+    vector<Car> cars(F);
+    int curr_ride = 0;
+    score = 0;
+    out = vector<vector<int> >(F);
+    while (curr_ride < N) {
+        int selected_car = -1;
+        Ride& curr = rides[curr_ride];
+        vector<int> bonus;
+        for (int i = 0; i < F; i++) {
+            if (is_bonus(cars[i], curr)) {
+                bonus.push_back(i);
+            }
+        }
+        int bs = bonus.size();
+        if (bs != 0) {
+            selected_car = rand()%bs;
+            score += B;
+        }
+        else {
+            for (int i = 0; i < F; i++) {
+                if (is_possible(cars[i], curr)) {
+                    bonus.push_back(i);
+                    bs = bonus.size();
+                    if (bs != 0) {
+                        selected_car = rand()%bs;
+                    }
+                }
+            }
+        }
+        if (selected_car != -1) {
+            Car& mycar = cars[selected_car];
+            out[selected_car].push_back(curr.num);
+            mycar.r = curr.rf;
+            mycar.c = curr.cf;
+            int pickup_time = max(curr.s, mycar.time + dist(mycar.r, mycar.c, curr.ri, curr.ci));
+            int final_time = pickup_time + dist(curr.ri, curr.ci, curr.rf, curr.cf);
+            score += (ll)dist(curr.ri, curr.ci, curr.rf, curr.cf);
+        }
+        curr_ride++;
+    }
     
 }
 
 int main() {
+    srand(time(0));
     read_input();
     int high_score = 0; //highscore inicial
     sort(rides.begin(), rides.end(), comp);
     string enter;
     cout << "Press enter" << endl;
     while (getline(cin, enter)) {
-        int score;
+        ll score;
         vector<vector<int> > out;
         calculate(score, out);
         cout << "Finished iteration with " << score << " points" << endl;
@@ -71,6 +136,7 @@ int main() {
             cout << "Updating output file..." << endl;
             write_to_file(out);
             cout << "Output file updated" << endl;
+            high_score = score;
         }
         cout << "Press enter" << endl;
     } 
