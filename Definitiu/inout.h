@@ -1,19 +1,25 @@
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <vector>
 #include <map>
 
 using namespace std;
 
-#define INPUT_FILE "d_pet_pictures.txt"
-#define OUTPUT_FILE "a_out.txt"
+//#define INPUT_FILE "a_example.txt"
+//#define OUTPUT_FILE "a_out.txt"
+
+#define INPUT_FILE "e_shiny_selfies.txt"
+#define OUTPUT_FILE "e_out.txt"
 
 map<string, int> tags;
 vector<pair<int, vector<int> > > vertical_photos;
 vector<pair<pair<int, int>, vector<int> > > horizontal_photos;
 vector<vector<int> > all_photos;
-vector<int> relate;
+vector<int> relate; //porta num de vertical a num de all photos
+vector<int> relateinv; //porta num de all photos a num de vertical
+vector<int> relate2; //porta num de vertical a num de horizontal
 int M;
 
 int obtain_num(const string& s) {
@@ -97,6 +103,8 @@ void fusion() {
             }
             used[i] = used[maxindex] = true;
             horizontal_photos.push_back(make_pair(make_pair(relate[i], relate[maxindex]), unite(vertical_photos[i].second, vertical_photos[maxindex].second)));
+            relate2[i] = horizontal_photos.size()-1;
+            relate2[maxindex] = horizontal_photos.size()-1;
         }
     }
 }
@@ -105,6 +113,7 @@ void read_from_file() {
     ifstream inFile(INPUT_FILE);
     inFile >> M;
     all_photos = vector<vector<int> >(M);
+    relateinv = vector<int>(M, -1);
     relate = vector<int>();
     for (int i = 0; i < M; i++) {
         char c;
@@ -120,9 +129,11 @@ void read_from_file() {
         if (c == 'H') horizontal_photos.push_back(make_pair(make_pair(i, -1), all_photos[i]));
         else {
             relate.push_back(i);
+            relateinv[i] = vertical_photos.size();
             vertical_photos.push_back(make_pair(i, all_photos[i]));
         }
     }
+    relate2 = vector<int>(vertical_photos.size());
     fusion();
 }
 
@@ -130,8 +141,9 @@ void read_from_file() {
 void write_to_file(const vector<pair<int, int> >& sol) {
     ofstream fileOut(OUTPUT_FILE);
     int m = sol.size();
-    fileOut << M << endl;
+    fileOut << m << endl;
     for (int i = 0; i < m; i++) {
+        if (sol[i].first == -1) cerr << "CUIDADO" << endl;
         fileOut << sol[i].first;
         if (sol[i].second != -1) fileOut << " " << sol[i].second << endl;
         else fileOut << endl;

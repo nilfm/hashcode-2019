@@ -47,14 +47,63 @@ ll interest(vector<int>& v1, vector<int>& v2) {
 }
 
 
-
 void calculate(ll& score, vector<pair<int, int> >& out) {
-    
+    int sz = horizontal_photos.size();
+    score = 0;
+    out = vector<pair<int, int> >(sz, make_pair(-1, -1));
+    for (int i = 0; i < (int)horizontal_photos.size(); i++) {
+        if (i%1000 == 0) cerr << "i = " << i << endl;
+        int id1 = horizontal_photos[i].first.first;
+        int id2 = horizontal_photos[i].first.second;
+        vector<int>& tags_vec = horizontal_photos[i].second;
+        
+        int posicio;
+        if (i < sz/3) {
+            do {
+                posicio = rand()%sz;
+            } while (out[posicio].first != -1);
+            if (posicio < sz-1 and out[posicio+1].first != -1) {
+                int index = (out[posicio+1].second == -1 ? posicio+1 : relate2[out[posicio+1].first]);
+                score += interest(tags_vec, horizontal_photos[index].second);
+            }
+            if (posicio > 0 and out[posicio-1].first != -1) {
+                int index = (out[posicio-1].second == -1 ? posicio-1 : relate2[out[posicio-1].first]);
+                score += interest(tags_vec, horizontal_photos[index].second);
+            }
+        }
+        else {
+            int maxim = -1;
+            int maxindex = 0;
+            for (int j = 0; j < sz; j++) {
+                if (out[j].first == -1) {
+                    int curr = 0;
+                    if (j < sz-1 and out[j+1].first != -1) {
+                        int index = j+1;
+                        if (out[j+1].second != -1) index = relate2[relateinv[out[j+1].first]];
+                        curr += interest(tags_vec, horizontal_photos[index].second);
+                    }
+                    if (j > 0 and out[j-1].first != -1) {
+                        int index = j-1;
+                        if (out[j-1].second != -1) index = relate2[relateinv[out[j-1].first]];
+                        curr += interest(tags_vec, horizontal_photos[index].second);
+                    }
+                    if (curr > maxim) {
+                        maxim = curr;
+                        maxindex = j;
+                    }
+                }
+            }
+            posicio = maxindex;
+            score += maxim;
+        }
+        out[posicio] = make_pair(id1, id2);
+    }
 }
 
 int main() {
     srand(time(0));
-    read_from_file(INPUT_FILE, rides);
+    read_from_file();
+    cout << "File read and processed" << endl;
     int high_score = 0; //highscore inicial
     string enter;
     cout << "Press enter" << endl;
@@ -66,7 +115,7 @@ int main() {
         cout << "Finished iteration with " << score << " points" << endl;
         if (score > high_score) {
             cout << "Updating output file..." << endl;
-            write_to_file(OUTPUT_FILE, out);
+            write_to_file(out);
             cout << "Output file updated" << endl;
             high_score = score;
         }
