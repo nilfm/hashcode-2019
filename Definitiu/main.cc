@@ -8,15 +8,12 @@
 #include "inout.h"
 using namespace std;
 
-#define INPUT_FILE "???"
-#define OUTPUT_FILE "???"
-
 const int NUM_ITERS = 100;
 
 typedef long long ll;
 
-void calculate(ll& score, vector<vector<int> >& out) {
-
+void calculate(ll& score, vector<pair<int, int> >& out) {
+    
 }
 
 int main() {
@@ -28,7 +25,7 @@ int main() {
     ll iter = 0;
     while (iter%NUM_ITERS != 0 or getline(cin, enter)) {
         ll score;
-        //TODO: crear out
+        vector<pair<int, int> > out;
         calculate(score, out);
         cout << "Finished iteration with " << score << " points" << endl;
         if (score > high_score) {

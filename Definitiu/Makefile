@@ -1,4 +1,3 @@
-
 all: main
 	g++ -o prog main.o
 
